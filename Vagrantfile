@@ -2,8 +2,8 @@ Vagrant.require_version ">= 1.4.3"
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-	numNodes = 5
-	r = numNodes..6
+	numNodes = 4
+	r = numNodes..1
 	(r.first).downto(r.last).each do |i|
 		config.ssh.username="vagrant"
 		config.ssh.password = "vagrant"
