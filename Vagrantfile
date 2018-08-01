@@ -35,12 +35,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 			end
 			if i == 2
 				node.vm.provision "shell" do |s|
+					s.privileged = false
 					s.path = "scripts/setup-centos-ssh.sh"
 					s.args = "-s 3 -t #{numNodes}"
 				end
 			end
 			if i == 1
 				node.vm.provision "shell" do |s|
+					s.privileged = false
 					s.path = "scripts/setup-centos-ssh.sh"
 					s.args = "-s 2 -t #{numNodes}"
 				end
@@ -48,11 +50,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 			node.vm.provision "shell", path: "scripts/setup-java.sh"
 			node.vm.provision "shell", path: "scripts/setup-hadoop.sh"
 			node.vm.provision "shell" do |s|
+				s.privileged = false
 				s.path = "scripts/setup-hadoop-slaves.sh"
 				s.args = "-s 3 -t #{numNodes}"
 			end
 			node.vm.provision "shell", path: "scripts/setup-spark.sh"
 			node.vm.provision "shell" do |s|
+				s.privileged = false
 				s.path = "scripts/setup-spark-slaves.sh"
 				s.args = "-s 3 -t #{numNodes}"
 			end
