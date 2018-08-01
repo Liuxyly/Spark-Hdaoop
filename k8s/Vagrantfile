@@ -1,0 +1,65 @@
+# -*- mode: ruby -*-
+# # vi: set ft=ruby :
+#
+
+Vagrant.configure(2) do |config|
+  (1..4).each do |i|
+
+    if i == 1 then
+      vm_name = "master"
+    else
+      vm_name = "node#{i-1}"
+    end     
+    
+    config.vm.define vm_name do |s|
+      s.vm.box = "ubuntu/xenial64"
+      s.vm.hostname = vm_name
+
+      #s.vm.network :forwarded_port, host: 4040, guest: 4040
+      #public_ip = "192.168.1.#{i+90}"
+      #s.vm.network :public_network, ip: public_ip, bridge: "en0: Ethernet"
+      #if i == 1 then
+      #  s.vm.network :forwarded_port, host: 8001, guest: 8001
+      #end
+
+      private_ip = "172.16.20.#{i+10}"
+      s.vm.network "private_network", ip: private_ip
+      
+      s.vm.provider "virtualbox" do |v|
+        v.cpus = 1
+        v.gui = false
+        if i == 1 then
+          v.memory = 4096
+        else
+          v.memory = 1024
+        end
+      end
+      s.vm.provision "shell", privileged:false, inline: <<-EOF
+        mkdir ~/.ssh_tmp
+        ssh-keygen -t rsa -P "" -f ~/.ssh_tmp/id_rsa
+      EOF
+      if i == 1 then
+        s.vm.provision "shell", inline: <<-EOF
+          rm -f /etc/udev/rules.d/70-persistent-net.rules
+          echo -e "deb https://apt.dockerproject.org/repo ubuntu-xenial main" > /etc/apt/sources.list.d/docker.list
+          apt-get update
+          apt-get install -y apt-transport-https ca-certificates curl software-properties-common nfs-common
+          apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+          apt-get purge lxc-docker
+          apt-cache policy docker-engine
+          apt-get install -y linux-image-extra-$(uname -r)
+          apt-get update
+          apt-get install -y docker-engine
+        EOF
+      end     
+
+    end
+  end
+
+  if Vagrant.has_plugin?("vagrant-cachier")
+    config.cache.scope = :box
+  end
+
+end
+
+
